@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<isd:service xmlns:isd="http://xml.apache.org/xml-soap/deployment"
+	id="urn:HelloWorldService">
+	<isd:provider type="java" scope="Request" methods="getMessage">
+		<isd:java class="com.mysoap.HelloWorldService"
+			static="false" />
+	</isd:provider>
+</isd:service>
