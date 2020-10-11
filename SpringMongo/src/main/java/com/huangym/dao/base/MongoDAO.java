@@ -39,7 +39,8 @@ public abstract class MongoDAO extends Thread{
 	protected MongoTemplate mongoTemplate;
 
 	/**
-	 * 根据查询条件查找单条记录
+	 * 根据查询条件查找单条记录<br>
+	 * 若使用外部输入内容拼接，则可能会有注入问题
 	 * 
 	 * @param clazz
 	 *            VO 类的 Class 对象
@@ -74,20 +75,26 @@ public abstract class MongoDAO extends Thread{
 				dboFields = MongoUtil.toDbo(fields);
 			}
 
-			DBObject dbObject = mongoTemplate.getCollection(collectionName).findOne(
-					dboWhere, dboFields);
-			if(null != dbObject)
-			{
-				return (T)MongoUtil.toVo(clazz,dbObject);
+			DBObject dbObject = mongoTemplate.getCollection(collectionName)
+					.findOne(dboWhere, dboFields);
+			if (null != dbObject) {
+				return (T) MongoUtil.toVo(clazz, dbObject);
 			}
 			return null;
-			
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
 		}
 	}
 	
+	/**
+	 * 根据查询条件查找单条记录
+	 * @param clazz
+	 * @param collectionName
+	 * @param dboFields
+	 * @param dboWhere
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	protected <T> T find(Class<?> clazz, String collectionName, 
 			DBObject dboFields, DBObject dboWhere) {
@@ -112,7 +119,8 @@ public abstract class MongoDAO extends Thread{
 	}
 
 	/**
-	 * 根据查询条件查找多条记录并排序和分页
+	 * 根据查询条件查找多条记录并排序和分页<br>
+	 * 若使用外部输入内容拼接，则可能会有注入问题
 	 * 
 	 * @param clazz
 	 *            VO 类的 Class 对象
@@ -145,7 +153,7 @@ public abstract class MongoDAO extends Thread{
 			DBObject dboWhere = new BasicDBObject();
 			if (where != null && !"".equals(where)) {
 				dboWhere = MongoUtil.toDbo(where);
-				System.out.println("dboWhere:"+dboWhere+"  where:"+where);
+				System.out.println("dboWhere:" + dboWhere + "  where:" + where);
 			}
 
 			DBObject dboFields = new BasicDBObject();
@@ -158,10 +166,6 @@ public abstract class MongoDAO extends Thread{
 				cursor = mongoTemplate.getCollection(collectionName).find(
 						dboWhere);
 			}
-
-			// DBCursor cursor =
-			// mongoTemplate.getCollection(collectionName).find(dboWhere,
-			// dboFields);
 
 			if (orderBy != null && !"".equals(orderBy)) {
 				cursor.sort(MongoUtil.toDbo(orderBy));
@@ -190,19 +194,28 @@ public abstract class MongoDAO extends Thread{
 
 			while (cursor.hasNext()) {
 				DBObject record = cursor.next();
-
 				records.add((T) MongoUtil.toVo(clazz, record));
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-
 		return records;
 	}
 	
+	/**
+	 * 根据查询条件查找多条记录并排序和分页
+	 * @param clazz
+	 * @param collectionName
+	 * @param dboFields
+	 * @param dboWhere
+	 * @param pageable
+	 * @param orderBy
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	protected <T> List<T> find(Class<?> clazz, String collectionName,
-			DBObject dboFields, DBObject dboWhere, Pageable pageable, DBObject orderBy) {
+			DBObject dboFields, DBObject dboWhere, Pageable pageable,
+			DBObject orderBy) {
 		if (StringUtil.isEmpty(collectionName)) {
 			collectionName = getCollectionName(clazz);
 		}
@@ -215,7 +228,7 @@ public abstract class MongoDAO extends Thread{
 		if (dboWhere == null) {
 			dboWhere = new BasicDBObject();
 		}
-		DBCursor cursor  = mongoTemplate.getCollection(collectionName).find(
+		DBCursor cursor = mongoTemplate.getCollection(collectionName).find(
 				dboWhere, dboFields);
 		if (pageable != null) {
 			cursor.skip(pageable.getOffset());
@@ -243,23 +256,19 @@ public abstract class MongoDAO extends Thread{
 	 *            VO 对象
 	 * @return
 	 */
-	public <T> boolean save(Class<?> clazz, String collectionName, T vo) {
+	protected <T> boolean save(Class<?> clazz, String collectionName, T vo) {
 		if (vo == null) {
 			return false;
 		}
-
 		if (collectionName == null || "".equals(collectionName)) {
 			collectionName = getCollectionName(clazz);
 		}
-
 		if ("".equals(collectionName)) {
 			return false;
 		}
-
 		try {
 			String error = mongoTemplate.getCollection(collectionName)
 					.insert(MongoUtil.toDbo(clazz, vo)).getError();
-
 			return (error == null || "".equals(error));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -268,66 +277,57 @@ public abstract class MongoDAO extends Thread{
 	}
 	
 	/**
+	 * 更新记录
 	 * @param collectionName 表名称
 	 * @param id 表里面的ID或者唯一标示的东西
-	 * @param vo 实体囖
+	 * @param vo 实体
 	 * 
 	 * @return
 	 */
-	protected <T> boolean updateVO(String collectionName,String id , T vo) {
+	protected <T> boolean updateVO(String collectionName, String id, T vo) {
 		try {
 			Field[] fields = vo.getClass().getDeclaredFields();
 			Criteria criteria = null;
 			Update update = new Update();
 			for (Field field : fields) {
 				String fieldName = field.getName();
-				
-				if ("serialVersionUID".equals(fieldName) || field.getAnnotation(Transient.class) != null) {
+
+				if ("serialVersionUID".equals(fieldName)
+						|| field.getAnnotation(Transient.class) != null) {
 					continue;
 				}
-				
-				if("_id".equals(fieldName)){
+
+				if ("_id".equals(fieldName)) {
 					continue;
 				}
-				
-				//大写切换成 “_小写”
-				char[] chars = fieldName.toCharArray();
-				StringBuilder sb = new StringBuilder();
-				for (char c : chars) {
-					if (Character.isUpperCase(c)) {
-						sb.append("_");
-					}
-					sb.append(Character.toLowerCase(c));
-				}
-				
-				//查询条件
-				if(fieldName.equals(id))
-				{
-					criteria = Criteria.where(sb.toString()).is(field.get(vo));
-				}
-				else
-				{
-					//日期转换
-					if("class java.util.Date".equals(field.getGenericType().toString()))
-					{
-						update.set(sb.toString(), (Date)field.get(vo));
-					}
-					else
-					{
-						update.set(sb.toString(), field.get(vo));
+
+				// 大写切换成 “_小写”
+				String columnName = MongoUtil.getColumnName(fieldName);
+
+				// 查询条件
+				if (fieldName.equals(id)) {
+					criteria = Criteria.where(columnName).is(field.get(vo));
+				} else {
+					// 日期转换
+					if ("class java.util.Date".equals(field.getGenericType()
+							.toString())) {
+						update.set(columnName, (Date) field.get(vo));
+					} else {
+						update.set(columnName, field.get(vo));
 					}
 				}
 			}
-			
-			if(criteria == null)return false;
-			String error = mongoTemplate.updateMulti(new Query(criteria), update,
-					collectionName).getError();
+
+			if (criteria == null) {
+				return false;
+			}
+			String error = mongoTemplate.updateMulti(new Query(criteria),
+					update, collectionName).getError();
 			return (error == null || "".equals(error));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
-		} 
-		
+		}
 	}
 
 	/**
@@ -380,7 +380,8 @@ public abstract class MongoDAO extends Thread{
 	}
 
 	/**
-	 * 删除符合查询条件的记录
+	 * 删除符合查询条件的记录<br>
+	 * 若使用外部输入内容拼接，则可能会有注入问题
 	 * 
 	 * @param clazz
 	 *            VO 类的 Class 对象
@@ -417,7 +418,8 @@ public abstract class MongoDAO extends Thread{
 	}
 
 	/**
-	 * 统计符合查询条件的记录数
+	 * 统计符合查询条件的记录数<br>
+	 * 若使用外部输入内容拼接，则可能会有注入问题
 	 * 
 	 * @param clazz
 	 *            VO 类的 Class 对象
@@ -452,7 +454,15 @@ public abstract class MongoDAO extends Thread{
 		}
 	}
 	
-	protected long count(Class<?> clazz, String collectionName, DBObject dboWhere) {
+	/**
+	 * 统计符合查询条件的记录数
+	 * @param clazz
+	 * @param collectionName
+	 * @param dboWhere
+	 * @return
+	 */
+	protected long count(Class<?> clazz, String collectionName,
+			DBObject dboWhere) {
 		if (StringUtil.isEmpty(collectionName)) {
 			collectionName = getCollectionName(clazz);
 		}
@@ -475,7 +485,6 @@ public abstract class MongoDAO extends Thread{
 	protected String getCollectionName(Class<?> clazz) {
 		try {
 			Table table = clazz.getAnnotation(Table.class);
-
 			return table.name();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -493,7 +502,6 @@ public abstract class MongoDAO extends Thread{
 	protected Field[] getFields(Class<?> clazz) {
 		try {
 			Field[] fields = clazz.getDeclaredFields();
-
 			if (fields == null) {
 				return new Field[] {};
 			} else {
