@@ -82,4 +82,48 @@ public class LocationController {
 		return result;
 	}
 	
+	@RequestMapping
+	@ResponseBody
+	public ResultModel<List<Object>> findWithinBox() {
+		List<Object> list = service.findWithinBox();
+		ResultModel<List<Object>> result = new ResultModel<List<Object>>();
+		result.setStatus("0");
+		result.setErrorMsg("操作成功！");
+		result.setBody(list);
+		return result;
+	}
+	
+	@RequestMapping
+	@ResponseBody
+	public ResultModel<List<Object>> findWithinPolygon() {
+		List<Object> list = service.findWithinPolygon();
+		ResultModel<List<Object>> result = new ResultModel<List<Object>>();
+		result.setStatus("0");
+		result.setErrorMsg("操作成功！");
+		result.setBody(list);
+		return result;
+	}
+	
+	@RequestMapping
+	@ResponseBody
+	public ResultModel<List<Object>> findWithinCircle() {
+		List<Object> list = service.findWithinCircle();
+		ResultModel<List<Object>> result = new ResultModel<List<Object>>();
+		result.setStatus("0");
+		result.setErrorMsg("操作成功！");
+		result.setBody(list);
+		return result;
+	}
+	
+	@RequestMapping
+	@ResponseBody
+	public ResultModel<List<Object>> findWithinCenterSphere() {
+		List<Object> list = service.findWithinCenterSphere();
+		ResultModel<List<Object>> result = new ResultModel<List<Object>>();
+		result.setStatus("0");
+		result.setErrorMsg("操作成功！");
+		result.setBody(list);
+		return result;
+	}
+	
 }

@@ -2,8 +2,6 @@ package com.huangym.service;
 
 import java.util.List;
 
-import com.huangym.dto.PointDTO;
-
 public interface LocationService {
 	
 	public void addIndex();
@@ -12,10 +10,46 @@ public interface LocationService {
 	
 	public boolean addcorporation();
 	
+	/**
+	 * 增加线的地理位置信息
+	 * @return
+	 */
 	public boolean addLine();
 	
+	/**
+	 * 增加一个多边形的地理位置信息
+	 * @return
+	 */
 	public boolean addPolygon();
 	
+	/**
+	 * 查找坐标点附近的一定距离内的地理位置信息列表
+	 * @return
+	 */
 	public List<Object> findNearPoint();
+	
+	/**
+	 * 查找矩形范围内的地理位置信息列表
+	 * @return
+	 */
+	public List<Object> findWithinBox();
+	
+	/**
+	 * 查询多边形范围内的地理位置信息列表
+	 * @return
+	 */
+	public List<Object> findWithinPolygon();
+	
+	/**
+	 * 查询圆形范围内的地理位置信息列表
+	 * @return
+	 */
+	public List<Object> findWithinCircle();
+	
+	/**
+	 * 查询球体（例如地球）上某个圆形之内的记录
+	 * @return
+	 */
+	public List<Object> findWithinCenterSphere();
 	
 }

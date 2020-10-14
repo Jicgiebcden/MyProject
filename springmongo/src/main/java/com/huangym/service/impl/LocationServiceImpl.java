@@ -94,4 +94,52 @@ public class LocationServiceImpl implements LocationService {
 		return dao.findNearPoint(dto, metre);
 	}
 
+	@Override
+	public List<Object> findWithinBox() {
+		PointDTO leftDown = new PointDTO();
+		Point loc1 = new Point();
+		loc1.setCoordinates(Arrays.asList(new Double(113.450571), new Double(23.104543)));
+		leftDown.setLoc(loc1);
+		
+		PointDTO rightUP = new PointDTO();
+		Point loc2 = new Point();
+		loc2.setCoordinates(Arrays.asList(new Double(113.474286), new Double(23.118902)));
+		rightUP.setLoc(loc2);
+		return dao.findWithinBox(leftDown, rightUP);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object> findWithinPolygon() {
+		PolygonDTO dto = new PolygonDTO();
+		Polygon loc = new Polygon();
+		loc.setCoordinates(Arrays.asList(Arrays.asList(
+				Arrays.asList(new Double(113.465496), new Double(23.10874)),
+				Arrays.asList(new Double(113.460057), new Double(23.112255)),
+				Arrays.asList(new Double(113.442118), new Double(23.173882)),
+				Arrays.asList(new Double(113.465496), new Double(23.10874)))));
+		dto.setLoc(loc);
+		return dao.findWithinPolygon(dto);
+	}
+
+	@Override
+	public List<Object> findWithinCircle() {
+		PointDTO dto = new PointDTO();
+		Point loc = new Point();
+		loc.setCoordinates(Arrays.asList(new Double(113.464908), new Double(23.112687)));
+		dto.setLoc(loc);
+		Double radian = new Double(10);// 弧度，有问题
+		return dao.findWithinCircle(dto, radian);
+	}
+
+	@Override
+	public List<Object> findWithinCenterSphere() {
+		PointDTO dto = new PointDTO();
+		Point loc = new Point();
+		loc.setCoordinates(Arrays.asList(new Double(113.464908), new Double(23.112687)));
+		dto.setLoc(loc);
+		Double radian = new Double(0.0001);
+		return dao.findWithinCenterSphere(dto, radian);
+	}
+	
 }
