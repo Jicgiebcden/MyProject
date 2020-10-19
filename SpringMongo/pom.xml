@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>springmongo</artifactId>
+	<artifactId>SpringMongo</artifactId>
 	<packaging>war</packaging>
-	<name>springmongo</name>
-	<description>springmongo</description>
+	<name>SpringMongo</name>
+	<description>SpringMongo</description>
 	
 	<parent>
 		<groupId>com.huangym</groupId>
@@ -73,16 +73,6 @@
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
 		</dependency>
 
 	</dependencies>

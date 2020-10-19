@@ -269,9 +269,6 @@ public abstract class MongoDAO extends Thread{
 		try {
 			String error = mongoTemplate.getCollection(collectionName)
 					.insert(MongoUtil.toDbo(clazz, vo)).getError();
-			if (StringUtil.isNotBlank(error)) {
-				logger.error(error);
-			}
 			return (error == null || "".equals(error));
 		} catch (Exception e) {
 			logger.error(e.getMessage());

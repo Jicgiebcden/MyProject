@@ -1,5 +1,6 @@
 package com.stone.websocket.web.websocket;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -17,6 +18,10 @@ public class WebSocketEndPoint extends TextWebSocketHandler {
 	protected void handleTextMessage(WebSocketSession session,
 			TextMessage message) throws Exception {
 		super.handleTextMessage(session, message);
+		
+		HttpHeaders header = session.getHandshakeHeaders();
+		System.out.println(header);
+		
 		// 获得访问者主机
 		String hostStr = session.getRemoteAddress().getHostString() + ":"
 				+ session.getRemoteAddress().getPort();
@@ -91,6 +96,8 @@ public class WebSocketEndPoint extends TextWebSocketHandler {
 					serverSession.sendMessage(textMessage);
 				}
 
+				session.close();
+				System.out.println("关闭session......");
 			} else if (ProtocolUtil._IMG_MSG.equals(protocolHeader)) {// 图片消息
 				// 发送给谁
 				String from = protocolMsg[1];
