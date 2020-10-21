@@ -12,6 +12,7 @@ import com.huangym.dto.LineStringDTO;
 import com.huangym.dto.PointDTO;
 import com.huangym.dto.PolygonDTO;
 import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
@@ -157,5 +158,14 @@ public class LocationDao extends MongoDAO {
 			}
 		}
 		return list;
+	}
+	
+	public void command(PointDTO point) {
+		// 查询指定点到每个记录的距离。spherical指定是否地理空间，maxDistance为搜索的最大距离条件，num指定返回多少条结果记录
+		String json = "{geoNear : \"location\", near : {type : \"Point\", coordinates : [" 
+				+ point.getLoc().getCoordinates().get(0) + ", " 
+				+ point.getLoc().getCoordinates().get(1) + "]}, spherical : true, maxDistance : 4000, num : 6}";
+		CommandResult result = mongoTemplate.getDb().command(MongoUtil.toDbo(json));
+		System.out.println(result);
 	}
 }

@@ -52,4 +52,19 @@ public interface LocationService {
 	 */
 	public List<Object> findWithinCenterSphere();
 	
+	/**
+	 * 执行command
+	 * @return
+	 */
+	public void runCommand();
+	
+	/**
+	 * 增加一个地理坐标点
+	 * @param name	坐标名称
+	 * @param longitude	经度
+	 * @param latitude	纬度
+	 * @return
+	 */
+	public boolean addPoint(String name, double longitude, double latitude);
+	
 }

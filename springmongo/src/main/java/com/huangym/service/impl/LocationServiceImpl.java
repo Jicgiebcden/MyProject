@@ -141,5 +141,26 @@ public class LocationServiceImpl implements LocationService {
 		Double radian = new Double(0.0001);
 		return dao.findWithinCenterSphere(dto, radian);
 	}
+
+	@Override
+	public void runCommand() {
+		PointDTO point = new PointDTO();
+		Point loc = new Point();
+		loc.setCoordinates(Arrays.asList(new Double(113.465496), new Double(23.10874)));
+		point.setLoc(loc);
+		dao.command(point);
+	}
+
+	@Override
+	public boolean addPoint(String name, double longitude, double latitude) {
+		PointDTO dto = new PointDTO();
+		dto.setId(StringUtil.getRandomString(32));
+		dto.setName(name);
+		Point loc = new Point();
+		loc.setType(BaseConstant.LocationType.TYPE_POINT);
+		loc.setCoordinates(Arrays.asList(longitude, latitude));
+		dto.setLoc(loc);
+		return dao.addLocation(dto);
+	}
 	
 }
