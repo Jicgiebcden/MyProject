@@ -1,5 +1,5 @@
 
-package com.alipay.sign;
+package com.alipay.rsa.sign;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,7 +12,7 @@ import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
 
-import com.alipay.config.AlipayConfig;
+import com.alipay.rsa.config.AlipayConfig;
 
 /*
 Java 进行 RSA 加解密时不得不考虑到的那些事儿

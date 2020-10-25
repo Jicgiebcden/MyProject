@@ -1,4 +1,4 @@
-package com.alipay.config;
+package com.alipay.rsa.config;
 
 /* *
  *类名：AlipayConfig

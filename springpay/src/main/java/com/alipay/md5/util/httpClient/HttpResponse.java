@@ -1,8 +1,9 @@
 package com.alipay.md5.util.httpClient;
 
-import com.alipay.config.AlipayConfig;
+import com.alipay.md5.config.AlipayConfig;
 
 import org.apache.commons.httpclient.Header;
+
 import java.io.UnsupportedEncodingException;
 
 /* *

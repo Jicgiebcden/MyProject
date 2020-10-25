@@ -1,8 +1,9 @@
-package com.alipay.util.httpClient;
+package com.alipay.rsa.util.httpClient;
 
-import com.alipay.config.AlipayConfig;
+import com.alipay.rsa.config.AlipayConfig;
 
 import org.apache.commons.httpclient.Header;
+
 import java.io.UnsupportedEncodingException;
 
 /* *

@@ -1,4 +1,4 @@
-package com.alipay.util;
+package com.alipay.rsa.util;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -12,8 +12,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
-import com.alipay.config.AlipayConfig;
-import com.alipay.sign.RSA;
+import com.alipay.rsa.config.AlipayConfig;
+import com.alipay.rsa.sign.RSA;
 
 /* *
  *类名：AlipaySubmit

@@ -1,4 +1,4 @@
-package com.alipay.util.httpClient;
+package com.alipay.rsa.util.httpClient;
 
 import org.apache.commons.httpclient.HttpException;
 import java.io.IOException;
