@@ -23,7 +23,7 @@ public class Configure {
 	private static String subMchID = "";
 
 	//HTTPS证书的本地路径
-	private static String certLocalPath = "";
+	private static String certLocalPath = "E:\\CF760E5D920BF4EAA7883CCA0A9759A4.p12";
 
 	//HTTPS证书密码，默认密码等于商户号MCHID
 	private static String certPassword = "";

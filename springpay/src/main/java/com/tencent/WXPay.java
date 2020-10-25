@@ -4,6 +4,7 @@ import com.tencent.business.DownloadBillBusiness;
 import com.tencent.business.RefundBusiness;
 import com.tencent.business.RefundQueryBusiness;
 import com.tencent.business.ScanPayBusiness;
+import com.tencent.business.scanpay.ResultListenerImpl;
 import com.tencent.common.Configure;
 import com.tencent.protocol.downloadbill_protocol.DownloadBillReqData;
 import com.tencent.protocol.pay_protocol.ScanPayReqData;
@@ -137,5 +138,9 @@ public class WXPay {
         new DownloadBillBusiness().run(downloadBillReqData,resultListener);
     }
 
+    public static void main(String[] args) throws Exception {
+    	ScanPayReqData scanPayReqData = new ScanPayReqData("130034857784746987", "{}", "abcdefg测试", "T0003", 1, "S001", "192.168.0.11", "", "", "");
+    	doScanPayBusiness(scanPayReqData, new ResultListenerImpl());
+	}
 
 }
