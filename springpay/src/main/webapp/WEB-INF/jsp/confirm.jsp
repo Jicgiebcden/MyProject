@@ -7,6 +7,11 @@
 <title>alipay confirm page</title>
 </head>
 <body>
-
+	<form action="/springpay/alipaymd5test/submit.do">
+		订单编号：<input type="text" name="out_trade_no" value="T0001"><br>
+		商品名称：<input type="text" name="subject" value="开发测试1"><br>
+		交易金额：<input type="text" name="total_fee" value="0.01"><br>
+		<input type="submit" value="确认提交">
+	</form>
 </body>
 </html>
