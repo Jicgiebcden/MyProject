@@ -50,4 +50,6 @@ public interface JedisService {
 	 */
 	public <T> T getObject(String key,T t) ;
 	
+	public void saveObject(int count);
+	
 }

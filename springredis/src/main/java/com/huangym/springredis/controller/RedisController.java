@@ -25,4 +25,11 @@ public class RedisController {
 		result.setBody(str);
 		return result;
 	}
+	
+	@RequestMapping
+	@ResponseBody
+	public void saveTest(Integer count) {
+		jedisService.saveObject(count);
+	}
+	
 }

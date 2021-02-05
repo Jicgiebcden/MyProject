@@ -1,11 +1,15 @@
 package com.huangym.springredis.redis;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
@@ -18,6 +22,9 @@ import redis.clients.jedis.JedisPoolConfig;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @Repository("jedisPools")
 public class JedisPools {
+	
+	private static final Logger logger = LoggerFactory.getLogger(JedisPools.class);
+	
 	private static JedisPool pool = null;
 
 	@Value("${jedis.host}")
@@ -176,6 +183,68 @@ public class JedisPools {
 		}
 		return true;
 	}
+	
+	/**
+	 * 使用hashes存储对象
+	 * @param key
+	 * @param object
+	 * @param mtimeout
+	 * @return
+	 */
+	public boolean saveObject(String key, Object object, int mtimeout) {
+		JedisPool pool = null;
+		Jedis jedis = null;
+		try {
+			pool = getPool();
+			jedis = pool.getResource();
+			Class c = object.getClass();
+			Field[] fields = c.getDeclaredFields();
+			Map<String, String> map = new HashMap<String, String>();
+			for (Field field : fields) {
+				field.setAccessible(true);
+				Class fc = field.getType();
+				String value = "";
+				Object fValue = field.get(object);
+				if (fValue == null) {
+					map.put(field.getName(), value);
+					continue ;
+				}
+				if (String.class.equals(fc)) {
+					value = (String) field.get(object);
+				} else if (Long.class.equals(fc)) {
+					Long v = (Long) fValue;
+					value = String.valueOf(v);
+				} else if (Integer.class.equals(fc)) {
+					Integer v = (Integer) fValue;
+					value = String.valueOf(v);
+				} else if (Double.class.equals(fc)) {
+					Double v = (Double) fValue;
+					value = String.valueOf(v);
+				} else if (Float.class.equals(fc)) {
+					Float v = (Float) fValue;
+					value = String.valueOf(v);
+				} else if (Boolean.class.equals(fc)) {
+					Boolean v = (Boolean) fValue;
+					value = String.valueOf(v);
+				} else {
+					logger.error("不支持的字段类型：" + fc.getName());
+					value = fValue.toString();
+				}
+				map.put(field.getName(), value);
+			}
+			jedis.hmset(key, map);
+			jedis.expire(key, mtimeout);
+			return true;
+		} catch (Exception e) {
+			// 释放redis对象
+			pool.returnBrokenResource(jedis);
+			e.printStackTrace();
+			return false;
+		} finally {
+			// 返还到连接池
+			returnResource(jedis);
+		}
+	}
 
 	/**
 	 * 获取json数据
@@ -199,7 +268,7 @@ public class JedisPools {
 		}
 		return value;
 	}
-
+	
 	/**
 	 * 更新自动释放内存时间
 	 */
@@ -286,6 +355,60 @@ public class JedisPools {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+	
+	public <T> T getObject2(String key, T t) {
+		JedisPool pool = null;
+		Jedis jedis = null;
+		try {
+			pool = getPool();
+			jedis = pool.getResource();
+			Class c = t.getClass();
+			Field[] fields = c.getDeclaredFields();
+			String[] fieldNames = new String[fields.length];
+			for (int i = 0; i < fields.length; i++) {
+				fieldNames[i] = fields[i].getName();
+			}
+			List<String> values = jedis.hmget(key, fieldNames);
+			for (int i = 0; i < fields.length; i++) {
+				fields[i].setAccessible(true);
+				Class fc = fields[i].getType();
+				if (values.get(i) == null || (!String.class.equals(fc) && "".equals(values.get(i)))) {
+					fields[i].set(t, null);
+					continue ;
+				}
+				if (String.class.equals(fc)) {
+					fields[i].set(t, values.get(i));
+				} else if (Long.class.equals(fc)) {
+					Long value = Long.valueOf(values.get(i));
+					fields[i].set(t, value);
+				} else if (Integer.class.equals(fc)) {
+					Integer value = Integer.valueOf(values.get(i));
+					fields[i].set(t, value);
+				} else if (Double.class.equals(fc)) {
+					Double value = Double.valueOf(values.get(i));
+					fields[i].set(t, value);
+				} else if (Float.class.equals(fc)) {
+					Float value = Float.valueOf(values.get(i));
+					fields[i].set(t, value);
+				} else if (Boolean.class.equals(fc)) {
+					Boolean value = Boolean.valueOf(values.get(i));
+					fields[i].set(t, value);
+				} else {
+					logger.error("不支持的字段类型：" + fc.getName());
+					fields[i].set(t, values.get(i));
+				}
+			}
+			return t;
+		} catch (Exception e) {
+			// 释放redis对象
+			pool.returnBrokenResource(jedis);
+			e.printStackTrace();
+			return null;
+		} finally {
+			// 返还到连接池
+			returnResource(jedis);
 		}
 	}
 }

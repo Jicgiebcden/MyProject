@@ -1,7 +1,11 @@
 package com.huangym.springredis.redis;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.huangym.springredis.controller.Test;
 
 @Service("jedisService")
 public class JedisServiceImpl implements JedisService {
@@ -67,6 +71,30 @@ public class JedisServiceImpl implements JedisService {
 	public <T> T getObject(String key,T t){
 		return jedisPools.getObject(key, t);
 	}
-	
+
+	@Override
+	public void saveObject(int count) {
+		Date start = new Date();
+		for (Long i = 0L; i < count; i++) {
+			Test test = new Test(i + 1, "huang", null, 1.2, false);
+			jedisPools.saveObject("object" + i, test, 100);
+		}
+		Date end = new Date();
+		long cost = end.getTime() - start.getTime();
+		System.out.println("新的存储方式花费了" + cost + "毫秒");
+		
+		Test t = new Test();
+		jedisPools.getObject2("object0", t);
+		System.out.println(t.getId() + " " + t.getName() + " " + t.getAge() + " " + t.getPrice() + " " + t.getIsTrue());
+		
+//		Date start = new Date();
+//		for (Long i = 0L; i < count; i++) {
+//			Test test = new Test(i, "huang", 20);
+//			jedisPools.setObject("object" + i, test, 100);
+//		}
+//		Date end = new Date();
+//		long cost = end.getTime() - start.getTime();
+//		System.out.println("旧的存储方式花费了" + cost + "毫秒");
+	}
 	
 }
