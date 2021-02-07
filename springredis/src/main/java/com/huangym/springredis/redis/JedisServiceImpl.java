@@ -96,5 +96,15 @@ public class JedisServiceImpl implements JedisService {
 //		long cost = end.getTime() - start.getTime();
 //		System.out.println("旧的存储方式花费了" + cost + "毫秒");
 	}
+
+	@Override
+	public void send2Queue(String key, String value) {
+		jedisPools.setQueue(key, value);
+	}
+
+	@Override
+	public void getFromQueue(String key) {
+		jedisPools.getQueue(key);
+	}
 	
 }

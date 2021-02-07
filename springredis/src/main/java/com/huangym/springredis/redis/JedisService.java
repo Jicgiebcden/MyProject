@@ -52,4 +52,8 @@ public interface JedisService {
 	
 	public void saveObject(int count);
 	
+	public void send2Queue(String key, String value);
+	
+	public void getFromQueue(String key);
+	
 }

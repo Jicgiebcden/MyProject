@@ -18,6 +18,12 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+/**
+ * 散列类型（hash）、列表类型（list）、集合类型（set）、有序集合类型（sorted set）
+ * 使用列表类型实现队列
+ * @author huangym3
+ * @time 2016年11月9日 上午11:25:43
+ */
 @Component
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @Repository("jedisPools")
@@ -267,6 +273,61 @@ public class JedisPools {
 			returnResource(jedis);
 		}
 		return value;
+	}
+	
+	/**
+	 * 获取队列列头元素
+	 * @param key
+	 * @return
+	 */
+	public String getQueue(String key) {
+		List<String> value = null;
+		JedisPool pool = null;
+		Jedis jedis = null;
+		try {
+			pool = getPool();
+			jedis = pool.getResource();
+			// 以阻塞方式读取列表元素
+			value = jedis.brpop(0, key);
+			// 按优先级，依次从key1、key2、key3...队列中获取一个元素
+			// jedis.brpop(timeout, key1, key2, key3...);
+			System.out.println(value.get(0));System.out.println(value.get(1));
+			return value.get(1);
+		} catch (Exception e) {
+			// 释放redis对象
+			pool.returnBrokenResource(jedis);
+			e.printStackTrace();
+		} finally {
+			// 返还到连接池
+			returnResource(jedis);
+		}
+		return null;
+	}
+	
+	/**
+	 * 将元素放入队列
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	public boolean setQueue(String key, String value) {
+		JedisPool pool = null;
+		Jedis jedis = null;
+		try {
+			pool = getPool();
+			jedis = pool.getResource();
+			jedis.lpush(key, value);
+			System.out.println("set value:" + value);
+			return true;
+		} catch (Exception e) {
+			// 释放redis对象
+			pool.returnBrokenResource(jedis);
+			e.printStackTrace();
+			return false;
+		} finally {
+			// 返还到连接池
+			returnResource(jedis);
+		}
 	}
 	
 	/**

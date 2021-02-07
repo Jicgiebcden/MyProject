@@ -32,4 +32,16 @@ public class RedisController {
 		jedisService.saveObject(count);
 	}
 	
+	@RequestMapping
+	@ResponseBody
+	public void getQueue() {
+		jedisService.getFromQueue("QUEUE");
+	}
+	
+	@RequestMapping
+	@ResponseBody
+	public void send2Queue(String value) {
+		jedisService.send2Queue("QUEUE", value);
+	}
+	
 }

@@ -23,7 +23,28 @@ public class Test {
 		this.price = price;
 		this.isTrue = isTrue;
 	}
+	
+	private Long get() {
+		return this.id;
+	}
 
+	public boolean compare(Test t) {
+		// 可以访问本类的私有方法
+		Long other = t.get();
+		System.out.println(other);
+		// 可以直接访问本类的私有变量
+		if (this.id != t.id) {
+			return false;
+		}
+		if (this.age != t.age) {
+			return false;
+		}
+		if (this.isTrue != t.isTrue) {
+			return false;
+		}
+		return true;
+	}
+	
 	public Long getId() {
 		return id;
 	}
