@@ -78,6 +78,9 @@
 		<version.htmlparser>2.1</version.htmlparser>
 		<version.smack>3.3.1</version.smack>
 		<version.aspectjrt>1.7.0</version.aspectjrt>
+		<version.struts2>2.3.24</version.struts2>
+		<version.struts2-convention-plugin>2.5.5</version.struts2-convention-plugin>
+		<version.mysql>5.1.6</version.mysql>
 
 		<!-- <version.jackson-annotations>2.3.2</version.jackson-annotations> <version.jackson-core>2.3.2</version.jackson-core> 
 			<version.jackson-databind>2.3.2</version.jackson-databind> <version.jackson-core-asl>1.9.13</version.jackson-core-asl> 
@@ -476,6 +479,24 @@
 				<artifactId>aspectjrt</artifactId>
 				<version>${version.aspectjrt}</version>
 			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.struts</groupId>
+			    <artifactId>struts2-core</artifactId>
+			    <version>${version.struts2}</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.apache.struts</groupId>
+			    <artifactId>struts2-convention-plugin</artifactId>
+			    <version>${version.struts2-convention-plugin}</version>
+			</dependency>
+			
+			<dependency>
+			    <groupId>mysql</groupId>
+			    <artifactId>mysql-connector-java</artifactId>
+			    <version>${version.mysql}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>com.fasterxml.jackson</groupId>
@@ -668,11 +689,13 @@
 	</build>
 
 	<repositories>
+		<!-- 
 		<repository>
 			<id>nexus-dev</id>
 			<name>Team Nexus Repository</name>
 			<url>http://wx-test.by-health.com/nexus/content/groups/public/</url>
 		</repository>
+		 -->
 
 		<!-- <repository> <id>centralMaven</id> <name>centralMaven</name> <url>http://central.maven.org/maven2/</url> 
 			</repository> <repository> <id>mvnrepository</id> <name>mvnrepository</name> 
@@ -680,7 +703,31 @@
 			<name>SpringSource Repository</name> <url>http://repo.springsource.org/release</url> 
 			</repository> <repository> <id>repo1</id> <name>repo1 Repository</name> <url>http://repo1.maven.org/maven</url> 
 			</repository> -->
+		
+		<repository>
+			<id>centralMaven</id>
+			<name>centralMaven</name>
+			<url>http://central.maven.org/maven2/</url>
+		</repository>
 
+		<repository>
+			<id>mvnrepository</id>
+			<name>mvnrepository</name>
+			<url>http://mvnrepository.com/</url>
+		</repository>
+
+		<repository>
+			<id>springsource-repo</id>
+			<name>SpringSource Repository</name>
+			<url>http://repo.springsource.org/release</url>
+		</repository>
+
+		<repository>
+			<id>repo1</id>
+			<name>repo1 Repository</name>
+			<url>http://repo1.maven.org/maven</url>
+		</repository>
+		
 	</repositories>
 
 	<distributionManagement>
