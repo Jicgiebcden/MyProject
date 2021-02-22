@@ -16,7 +16,6 @@ public class TCPClientReadThread implements Runnable {
 		new Thread(this).start();
 	}
 
-	@SuppressWarnings("static-access")
 	public void run() {
 		try {
 			while (selector.select() > 0) {// select()方法只能使用一次，用了之后就会自动删除,每个连接到服务器的选择器都是独立的

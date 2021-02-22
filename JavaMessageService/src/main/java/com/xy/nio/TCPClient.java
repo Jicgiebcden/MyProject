@@ -66,10 +66,11 @@ public class TCPClient {
 		new Thread() {
 			@Override
 			public void run() {
+				Scanner scan = null;
 				try {
 					client.sendMsg("你好!Nio!醉里挑灯看剑,梦回吹角连营");
-					while (mFlag) {
-						Scanner scan = new Scanner(System.in);// 键盘输入数据
+					scan = new Scanner(System.in);// 键盘输入数据
+					while (mFlag && scan.hasNext()) {
 						String string = scan.next();
 						client.sendMsg(string);
 					}
@@ -78,6 +79,9 @@ public class TCPClient {
 					e.printStackTrace();
 				} finally {
 					mFlag = false;
+					if (scan != null) {
+						scan.close();
+					}
 				}
 				super.run();
 			}

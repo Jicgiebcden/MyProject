@@ -45,10 +45,6 @@ public class TCPServer {
 			Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
 			while (keyIter.hasNext()) {
 				SelectionKey key = keyIter.next();
-				SelectionKey key1;
-				if (keyIter.hasNext()) {
-					key1 = keyIter.next();
-				}
 				try {
 					if (key.isAcceptable()) {
 						// 有客户端连接请求时
