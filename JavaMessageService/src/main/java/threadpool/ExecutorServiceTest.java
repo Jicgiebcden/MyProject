@@ -15,8 +15,8 @@ import java.util.concurrent.Executors;
 public class ExecutorServiceTest {
 
 	public static void main(String[] args) {
-//		ExecutorService executorService = Executors.newFixedThreadPool(4);
-		ExecutorService executorService = Executors.newSingleThreadExecutor();
+		ExecutorService executorService = Executors.newFixedThreadPool(4);
+//		ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 		executorService.execute(new Runnable() {
 			public void run() {
@@ -47,10 +47,83 @@ public class ExecutorServiceTest {
 				return "Task 3";
 			}
 		});
+		callables.add(new Callable<String>() {
+			public String call() throws Exception {
+				Thread.sleep(3000);
+				System.out.println("Task 3");
+				return "Task 3";
+			}
+		});
+		callables.add(new Callable<String>() {
+			public String call() throws Exception {
+				Thread.sleep(3000);
+				System.out.println("Task 3");
+				return "Task 3";
+			}
+		});
+		callables.add(new Callable<String>() {
+			public String call() throws Exception {
+				Thread.sleep(3000);
+				System.out.println("Task 3");
+				return "Task 3";
+			}
+		});
+		callables.add(new Callable<String>() {
+			public String call() throws Exception {
+				Thread.sleep(3000);
+				System.out.println("Task 3");
+				return "Task 3";
+			}
+		});
+		callables.add(new Callable<String>() {
+			public String call() throws Exception {
+				Thread.sleep(3000);
+				System.out.println("Task 3");
+				return "Task 3";
+			}
+		});
+		callables.add(new Callable<String>() {
+			public String call() throws Exception {
+				Thread.sleep(3000);
+				System.out.println("Task 3");
+				return "Task 3";
+			}
+		});
+		callables.add(new Callable<String>() {
+			public String call() throws Exception {
+				Thread.sleep(3000);
+				System.out.println("Task 3");
+				return "Task 3";
+			}
+		});
+		callables.add(new Callable<String>() {
+			public String call() throws Exception {
+				Thread.sleep(3000);
+				System.out.println("Task 3");
+				return "Task 3";
+			}
+		});
+		callables.add(new Callable<String>() {
+			public String call() throws Exception {
+				Thread.sleep(3000);
+				System.out.println("Task 3");
+				return "Task 3";
+			}
+		});
+		callables.add(new Callable<String>() {
+			public String call() throws Exception {
+				Thread.sleep(3000);
+				System.out.println("Task 3");
+				return "Task 3";
+			}
+		});
 
 		try {
 			executorService.invokeAll(callables);
+			// 正常关闭
 			executorService.shutdown();
+			// 强行关闭
+			// executorService.shutdownNow();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
