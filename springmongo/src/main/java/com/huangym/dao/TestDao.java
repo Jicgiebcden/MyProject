@@ -151,6 +151,10 @@ public class TestDao extends MongoDAO {
 		
 		mongoTemplate.getCollection(COLLECTION_NAME).getIndexInfo();	// 获取集合的索引
 		
+		mongoTemplate.getCollection(COLLECTION_NAME).dropIndex(MongoUtil.toDbo(keys));	// 删除指定的单个索引
+		
+		mongoTemplate.getCollection(COLLECTION_NAME).dropIndexes();	// 删除集合的所有索引
+		
 		String whereJson = "{\"name\":\"huang\"}";
 		String indexKeys = "{\"name\":1}";
 		// hint强制使用某个指定的索引查询数据，索引没有创建的情况下会返回错误信息。explain返回所选择的查询计划的相关信息，"indexBounds"项将显示出所使用的索引。
@@ -247,6 +251,95 @@ public class TestDao extends MongoDAO {
 		{ "_id" : "huang", "value" : { "num" : 27, "count" : 3 } }
 		{ "_id" : "huangym", "value" : { "num" : 1, "count" : 1 } }
 		*/
+	}
+	
+	public void replicaSet() {
+		// 依次启动三个服务器实例，选项--replSet将告诉实例它所加入的复制集的名称。
+		// E:\Tools\mongodb-win32-x86_64-3.0.6\bin>mongod.exe --dbpath /data/db1 --port 27021 --replSet testset
+		// E:\Tools\mongodb-win32-x86_64-3.0.6-2\bin>mongod.exe --dbpath /data/db2 --port 27022 --replSet testset
+		// E:\Tools\mongodb-win32-x86_64-3.0.6-3\bin>mongod.exe --dbpath /data/db3 --port 27023 --replSet testset
+		
+		// 连接第一个数据库服务器，9RV4Q52是服务器的主机名。需要使用机器名，因为localhost和127.0.0.1都无法正确运行。
+		// E:\Tools\mongodb\mongodb-win32-x86_64-3.0.6\bin>mongo.exe 9RV4Q52:27021
+		// 2017-01-19T11:57:30.271+0800 I CONTROL  Hotfix KB2731284 or later update is not installed, will zero-out data files
+		// MongoDB shell version: 3.0.6
+		// connecting to: 9RV4Q52:27021/test
+		
+		// 此时执行查看数据库将会出错，因为没有初始化复制集，不知道那个是主服务器。
+		// > show dbs
+		// 2017-01-19T11:58:40.943+0800 E QUERY    Error: listDatabases failed:{ "note" : "from execCommand", "ok" : 0, "errmsg" : "not master" }
+		//	    at Error (<anonymous>)
+		//	    at Mongo.getDBs (src/mongo/shell/mongo.js:47:15)
+		//	    at shellHelper.show (src/mongo/shell/utils.js:630:33)
+		//	    at shellHelper (src/mongo/shell/utils.js:524:36)
+		//	    at (shellhelp2):1:1 at src/mongo/shell/mongo.js:47
+		
+		// 初始化复制集，执行需要花一点时间。
+		// > rs.initiate()
+		// {
+		//        "info2" : "no configuration explicitly specified -- making one",
+		//        "me" : "9RV4Q52:27021",
+		//        "ok" : 1
+		// }
+		// 检查服务器状态，判断它是否已经设置成功。
+		// testset:OTHER> rs.status()
+		
+		// 向复制集中添加另外两个成员。
+		// testset:PRIMARY> rs.add("9RV4Q52:27022")
+		// testset:PRIMARY> rs.add("9RV4Q52:27023")
+		
+		// 获取当前复制集的配置文档。
+		// testset:PRIMARY> conf = rs.conf()
+		// 修改最后加入的第三台服务器，设置为隐藏并且优先级为0，这样它就不会被选举为主服务器。hidden该元素将从db.isMaster()的输出中隐藏该节点，从而阻止在该节点上发生读取操作，即使设置了辅助服务器读取偏好也不可以。
+		// testset:PRIMARY> conf.members[2].hidden = true
+		// true
+		// priority浮点数，该元素代表在选举新的主服务器时，分配给该服务器的权重。如果主服务器不可用，那么复制集将根据该值从辅助服务器中选举出新的主服务器。
+		// 任何含有非0的辅助服务器都认为是活跃的，也是可用的服务器。因此，将该值设置为0将强制辅助服务器变成被动模式。如果多个辅助服务器的优先级相同，那就需要进行投票，还可以调用仲裁服务器（如果已配置的话）解决任何死锁。
+		// testset:PRIMARY> conf.members[2].priority = 0
+		// 0
+		// testset:PRIMARY> conf
+		// 将修改后的配置文档更新为复制集的配置，整个复制集将先断开连接，然后再重新连接。
+		// testset:PRIMARY> rs.reconfig(conf)
+		// { "ok" : 1 }
+		// testset:PRIMARY> rs.conf()
+		
+		// 启动一个服务器作为仲裁服务器。
+		// E:\Tools\mongodb-win32-x86_64-3.0.6-4\bin>mongod.exe --dbpath /data/db4 --port 27024 --replSet testset -rest
+		
+		// 往复制集中添加仲裁服务器作为投票成员。
+		// testset:PRIMARY> rs.addArb("9RV4Q52:27024")
+		// { "ok" : 1 }
+		
+		// 将隐藏辅助服务器的votes（当前实例在选举主服务器时可投的票数）设置为0，这样被动节点完全变成了被动服务器：它永远不会变成主服务器；它被客户端看做复制集的一部分；并且不会参与选举，也不会被统计为选举的大多数。
+		// testset:PRIMARY> conf = rs.conf()
+		// testset:PRIMARY> conf.members[2].votes = 0
+		// testset:PRIMARY> rs.reconfig(conf)
+		
+		// rs.status()检测实例的状态
+		// testset:PRIMARY> rs.status()
+		
+		// 使用rs.stepDown()命令强制主服务器退出60秒；该命令将强制选出新的主服务器。该命令在下面的情况下非常有用：
+		// 1、需要使托管主服务器实例的服务器离线，无论是调查服务器，还是进行硬件升级或维护；
+		// 2、需要为数据结构运行诊断进程；
+		// 3、需要模拟主服务器崩溃产生的影响，并强制集群执行故障切换，从而测试应用如何对这样的事件做出响应。
+		// testset:PRIMARY> rs.stepDown()
+		
+		// 如果在辅助服务器上查询会报错，这是因为SECONDARY是不允许读写的，如果非要解决，执行rs.slaveOk()
+		// testset:SECONDARY> db.mymember.find()
+		// Error: error: { "$err" : "not master and slaveOk=false", "code" : 13435 }
+		
+		// 每台需要读取操作的辅助服务器都要执行。
+		// testset:SECONDARY> rs.slaveOk()
+		// testset:SECONDARY> show dbs
+		// local  16.070GB
+		// mydb    0.078GB
+		// testset:SECONDARY> use mydb
+		// switched to db mydb
+		// testset:SECONDARY> show collections
+		// mymember
+		// system.indexes
+		// testset:SECONDARY> db.mymember.find()
+		// { "_id" : ObjectId("588064fbe7e8922d0eb91a29"), "name" : "huangym" }
 	}
 	
 }
