@@ -253,6 +253,9 @@ public class TestDao extends MongoDAO {
 		*/
 	}
 	
+	/**
+	 * 搭建mongoDB复制集
+	 */
 	public void replicaSet() {
 		// 依次启动三个服务器实例，选项--replSet将告诉实例它所加入的复制集的名称。
 		// E:\Tools\mongodb-win32-x86_64-3.0.6\bin>mongod.exe --dbpath /data/db1 --port 27021 --replSet testset
@@ -340,6 +343,160 @@ public class TestDao extends MongoDAO {
 		// system.indexes
 		// testset:SECONDARY> db.mymember.find()
 		// { "_id" : ObjectId("588064fbe7e8922d0eb91a29"), "name" : "huangym" }
+	}
+	
+	/**
+	 * 使用mongoDB实现分片
+	 */
+	public void shard() {
+		// 启动配置服务器
+		// E:\Tools\mongodb-win32-x86_64-3.0.6-2\bin>mongod.exe --port 27022 --dbpath /data/config --configsvr
+		
+		// 启动分片控制器
+		// E:\Tools\mongodb-win32-x86_64-3.0.6\bin>mongos.exe --configdb 9RV4Q52:27022 --port 27021 --chunkSize 1
+		
+		// 启动两台分片服务器
+		// E:\Tools\mongodb-win32-x86_64-3.0.6-3\bin>mongod.exe --port 27023 --dbpath /data/shard1
+		// E:\Tools\mongodb-win32-x86_64-3.0.6-4\bin>mongod.exe --port 27024 --dbpath /data/shard2
+		
+		// 连接分片控制器
+		// E:\Tools\mongodb\mongodb-win32-x86_64-3.0.6\bin>mongo.exe 9RV4Q52:27021
+		// 添加两台分片服务器
+		// mongos> sh.addShard("9RV4Q52:27023")
+		// { "shardAdded" : "shard0000", "ok" : 1 }
+		// mongos> sh.addShard("9RV4Q52:27024")
+		// { "shardAdded" : "shard0001", "ok" : 1 }
+		
+		// 检查分片服务器的状态
+		// mongos> db.printShardingStatus()
+		/*
+		--- Sharding Status ---
+		  sharding version: {
+		        "_id" : 1,
+		        "minCompatibleVersion" : 5,
+		        "currentVersion" : 6,
+		        "clusterId" : ObjectId("58819537bcf9ee12151c9dd2")
+		}
+		  shards:
+		        {  "_id" : "shard0000",  "host" : "9RV4Q52:27023" }
+		        {  "_id" : "shard0001",  "host" : "9RV4Q52:27024" }
+		  balancer:
+		        Currently enabled:  yes
+		        Currently running:  no
+		        Failed balancer rounds in last 5 attempts:  0
+		        Migration Results for the last 24 hours:
+		                No recent migrations
+		  databases:
+		        {  "_id" : "admin",  "partitioned" : false,  "primary" : "config" }
+		*/
+		
+		// 创建分片数据库
+		// mongos> sh.enableSharding("testdb")
+		// { "ok" : 1 }
+		// 在数据库中激活一个名为testcollection的集合，对该集合进行分片，赋予它一个名为testkey的参数，用作分片函数。
+		// mongos> sh.shardCollection("testdb.testcollection", {"testkey" : 1})
+		// { "collectionsharded" : "testdb.testcollection", "ok" : 1 }
+		
+		// 往集合中添加100000条数据
+		// mongos> for (var i = 0; i < 100000; i++) { db.testcollection.insert({"testkey":i, "testtext":"abcdefg"}); }
+		// WriteResult({ "nInserted" : 1 })
+		
+		// 查看分片数据库状态
+		// mongos> sh.status()
+		/*
+		--- Sharding Status ---
+		  sharding version: {
+		        "_id" : 1,
+		        "minCompatibleVersion" : 5,
+		        "currentVersion" : 6,
+		        "clusterId" : ObjectId("58819537bcf9ee12151c9dd2")
+		}
+		  shards:
+		        {  "_id" : "shard0000",  "host" : "9RV4Q52:27023" }
+		        {  "_id" : "shard0001",  "host" : "9RV4Q52:27024" }
+		  balancer:
+		        Currently enabled:  yes
+		        Currently running:  no
+		        Failed balancer rounds in last 5 attempts:  0
+		        Migration Results for the last 24 hours:
+		                8 : Success
+		                37 : Failed with error 'moveChunk failed to engage TO-shard in the data transfer: can't accept new chunks be
+		cause  there are still 1 deletes from previous migration', from shard0001 to shard0000
+		  databases:
+		        {  "_id" : "admin",  "partitioned" : false,  "primary" : "config" }
+		        {  "_id" : "test",  "partitioned" : false,  "primary" : "shard0000" }
+		        {  "_id" : "testdb",  "partitioned" : true,  "primary" : "shard0000" }
+		                testdb.testcollection
+		                        shard key: { "testkey" : 1 }
+		                        chunks:
+		                                shard0000       9
+		                                shard0001       10
+		                        { "testkey" : { "$minKey" : 1 } } -->> { "testkey" : 1 } on : shard0000 Timestamp(4, 0)
+		                        { "testkey" : 1 } -->> { "testkey" : 9 } on : shard0000 Timestamp(3, 1)
+		                        { "testkey" : 9 } -->> { "testkey" : 4690 } on : shard0000 Timestamp(2, 2)
+		                        { "testkey" : 4690 } -->> { "testkey" : 12393 } on : shard0000 Timestamp(2, 3)
+		                        { "testkey" : 12393 } -->> { "testkey" : 17074 } on : shard0000 Timestamp(5, 0)
+		                        { "testkey" : 17074 } -->> { "testkey" : 24339 } on : shard0000 Timestamp(6, 0)
+		                        { "testkey" : 24339 } -->> { "testkey" : 29020 } on : shard0000 Timestamp(7, 0)
+		                        { "testkey" : 29020 } -->> { "testkey" : 36456 } on : shard0000 Timestamp(8, 0)
+		                        { "testkey" : 36456 } -->> { "testkey" : 41137 } on : shard0000 Timestamp(9, 0)
+		                        { "testkey" : 41137 } -->> { "testkey" : 48673 } on : shard0001 Timestamp(9, 1)
+		                        { "testkey" : 48673 } -->> { "testkey" : 53354 } on : shard0001 Timestamp(3, 11)
+		                        { "testkey" : 53354 } -->> { "testkey" : 61021 } on : shard0001 Timestamp(3, 12)
+		                        { "testkey" : 61021 } -->> { "testkey" : 65702 } on : shard0001 Timestamp(3, 14)
+		                        { "testkey" : 65702 } -->> { "testkey" : 73402 } on : shard0001 Timestamp(3, 15)
+		                        { "testkey" : 73402 } -->> { "testkey" : 78083 } on : shard0001 Timestamp(3, 17)
+		                        { "testkey" : 78083 } -->> { "testkey" : 85783 } on : shard0001 Timestamp(3, 18)
+		                        { "testkey" : 85783 } -->> { "testkey" : 90464 } on : shard0001 Timestamp(3, 20)
+		                        { "testkey" : 90464 } -->> { "testkey" : 98164 } on : shard0001 Timestamp(3, 21)
+		                        { "testkey" : 98164 } -->> { "testkey" : { "$maxKey" : 1 } } on : shard0001 Timestamp(3, 22)
+		*/
+		
+		// 启动第三个分片服务器，并将它添加入分片集群
+		// E:\Tools\mongodb-win32-x86_64-3.0.6\bin>mongod.exe --port 27025 --dbpath /data/shard3
+		// mongos> sh.addShard("9RV4Q52:27025")
+		// { "shardAdded" : "shard0002", "ok" : 1 }
+		// 查看分片服务器是否已经被添加到分片集群中
+		// mongos> db.printShardingStatus()
+		
+		// 使用admin权限运行命令，从集群中移除刚添加的分片服务器
+		// mongos> use admin
+		// mongos> db.runCommand({removeShard : "9RV4Q52:27025"})
+		/*
+		{
+	        "msg" : "draining started successfully",	// 表示移除已经启动，已经开始在目标分片服务器中移出块到集群中的其他分片服务器。
+	        "state" : "started",
+	        "shard" : "shard0002",
+	        "ok" : 1
+		}
+		*/
+		// 再次执行命令，以检查清空进程的进度。
+		// mongos> db.runCommand({removeShard : "9RV4Q52:27025"})
+		/*
+		{
+		        "msg" : "removeshard completed successfully",	// 显示移除进程已经完成
+		        "state" : "completed",
+		        "shard" : "shard0002",
+		        "ok" : 1
+		}
+		*/
+		// 确认目标分片服务器是否已经从集群中移除。
+		// mongos> db.runCommand({listshards : 1})
+		/*
+		{
+		        "shards" : [
+		                {
+		                        "_id" : "shard0000",
+		                        "host" : "9RV4Q52:27023"
+		                },
+		                {
+		                        "_id" : "shard0001",
+		                        "host" : "9RV4Q52:27024"
+		                }
+		        ],
+		        "ok" : 1
+		}
+		*/
 	}
 	
 }

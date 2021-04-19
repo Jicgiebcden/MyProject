@@ -84,6 +84,21 @@ public class MongoConfig extends AbstractMongoConfiguration {
 		options.wtimeout = 0;
 		*/
 		
+		/**	http://www.cnblogs.com/xinghebuluo/archive/2011/12/01/2270896.html
+		WriteConcern.NONE:没有异常抛出
+		
+		// 默认情况下，该操作会使用WriteConcern.NORMAL（仅在网络错误时抛出异常）。使用NORMAL模式参数，可以使得写操作效率非常高。但是如果此时服务器出错，也不会返回错误给客户端，而客户端会误认为操作成功。
+		WriteConcern.NORMAL:仅抛出网络错误异常，没有服务器错误异常
+		
+		// 在很多重要写操作中需要使用WriteConcern.SAFE模式，保证可以感知到这个错误，保证客户端和服务器对一次操作的正确性认知保持一致。（根据笔者测试，如果服务器发生掉电情况，客户端依然得不到当时操作的错误返回，需要特别注意）
+		WriteConcern.SAFE:抛出网络错误异常、服务器错误异常；并等待服务器完成写操作。
+		
+		WriteConcern.MAJORITY: 抛出网络错误异常、服务器错误异常；并等待一个主服务器完成写操作。
+		WriteConcern.FSYNC_SAFE: 抛出网络错误异常、服务器错误异常；写操作等待服务器将数据刷新到磁盘。
+		WriteConcern.JOURNAL_SAFE:抛出网络错误异常、服务器错误异常；写操作等待服务器提交到磁盘的日志文件。
+		WriteConcern.REPLICAS_SAFE:抛出网络错误异常、服务器错误异常；等待至少2台服务器完成写操作。
+		*/
+		
 		return m;
 	}
 
