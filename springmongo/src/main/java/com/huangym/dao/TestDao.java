@@ -497,6 +497,10 @@ public class TestDao extends MongoDAO {
 		        "ok" : 1
 		}
 		*/
+		
+		// 询问数据库系统，判断它是否是分片系统。"isdbgrid" : 1 表示目前连接的系统中已经启用分片。
+		// mongos> db.runCommand({isdbgrid : 1})
+		// { "isdbgrid" : 1, "hostname" : "9RV4Q52", "ok" : 1 }
 	}
 	
 }
