@@ -50,7 +50,58 @@ public class Shard {
 		
 		// E:\Tools\mongodb\mongodb-win32-x86_64-3.0.6\bin>mongo.exe 9RV4Q52:30003/admin
 		// mongos> sh.addShard("shard3/9RV4Q52:10003")
-		
+		/*
+		mongos> sh.status()
+		--- Sharding Status ---
+		  sharding version: {
+		        "_id" : 1,
+		        "minCompatibleVersion" : 5,
+		        "currentVersion" : 6,
+		        "clusterId" : ObjectId("58819537bcf9ee12151c9dd2")
+		}
+		  shards:
+		        {  "_id" : "shard0000",  "host" : "9RV4Q52:27023" }	// 把以前的shard0000、shard0001也查出来了，说明以前的分片也添加到分片控制器了。
+		        {  "_id" : "shard0001",  "host" : "9RV4Q52:27024" }
+		        {  "_id" : "shard1",  "host" : "shard1/9RV4Q52:10001,9RV4Q52:10004,9RV4Q52:10007" }
+		        {  "_id" : "shard2",  "host" : "shard2/9RV4Q52:10002,9RV4Q52:10005,9RV4Q52:10008" }
+		        {  "_id" : "shard3",  "host" : "shard3/9RV4Q52:10003,9RV4Q52:10006,9RV4Q52:10009" }
+		  balancer:
+		        Currently enabled:  yes
+		        Currently running:  no
+		        Failed balancer rounds in last 5 attempts:  3
+		        Last reported error:  DBClientBase::findN: transport error: 9RV4Q52:27023 ns: admin.$cmd query: { features: 1 }
+		        Time of Reported error:  Fri Jan 20 2017 17:03:20 GMT+0800 (中国标准时间)
+		        Migration Results for the last 24 hours:
+		                No recent migrations
+		  databases:
+		        {  "_id" : "admin",  "partitioned" : false,  "primary" : "config" }
+		        {  "_id" : "test",  "partitioned" : false,  "primary" : "shard0000" }
+		        {  "_id" : "testdb",  "partitioned" : true,  "primary" : "shard0000" }
+		                testdb.testcollection
+		                        shard key: { "testkey" : 1 }
+		                        chunks:
+		                                shard0000       10
+		                                shard0001       9
+		                        { "testkey" : { "$minKey" : 1 } } -->> { "testkey" : 1 } on : shard0000 Timestamp(16, 0)
+		                        { "testkey" : 1 } -->> { "testkey" : 9 } on : shard0000 Timestamp(17, 0)
+		                        { "testkey" : 9 } -->> { "testkey" : 4690 } on : shard0001 Timestamp(18, 0)
+		                        { "testkey" : 4690 } -->> { "testkey" : 12393 } on : shard0000 Timestamp(15, 1)
+		                        { "testkey" : 12393 } -->> { "testkey" : 17074 } on : shard0000 Timestamp(5, 0)
+		                        { "testkey" : 17074 } -->> { "testkey" : 24339 } on : shard0000 Timestamp(6, 0)
+		                        { "testkey" : 24339 } -->> { "testkey" : 29020 } on : shard0000 Timestamp(7, 0)
+		                        { "testkey" : 29020 } -->> { "testkey" : 36456 } on : shard0000 Timestamp(8, 0)
+		                        { "testkey" : 36456 } -->> { "testkey" : 41137 } on : shard0000 Timestamp(9, 0)
+		                        { "testkey" : 41137 } -->> { "testkey" : 48673 } on : shard0000 Timestamp(19, 0)
+		                        { "testkey" : 48673 } -->> { "testkey" : 53354 } on : shard0001 Timestamp(20, 0)
+		                        { "testkey" : 53354 } -->> { "testkey" : 61021 } on : shard0000 Timestamp(21, 0)
+		                        { "testkey" : 61021 } -->> { "testkey" : 65702 } on : shard0001 Timestamp(14, 1)
+		                        { "testkey" : 65702 } -->> { "testkey" : 73402 } on : shard0001 Timestamp(3, 15)
+		                        { "testkey" : 73402 } -->> { "testkey" : 78083 } on : shard0001 Timestamp(3, 17)
+		                        { "testkey" : 78083 } -->> { "testkey" : 85783 } on : shard0001 Timestamp(3, 18)
+		                        { "testkey" : 85783 } -->> { "testkey" : 90464 } on : shard0001 Timestamp(3, 20)
+		                        { "testkey" : 90464 } -->> { "testkey" : 98164 } on : shard0001 Timestamp(3, 21)
+		                        { "testkey" : 98164 } -->> { "testkey" : { "$maxKey" : 1 } } on : shard0001 Timestamp(3, 22)
+		*/
 		
 		// 开启数据库的分片功能
 		// sh.enableSharding("page_db")
