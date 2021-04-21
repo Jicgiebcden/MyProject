@@ -397,6 +397,18 @@ public class TestDao extends MongoDAO {
 		// mongos> sh.shardCollection("testdb.testcollection", {"testkey" : 1})
 		// { "collectionsharded" : "testdb.testcollection", "ok" : 1 }
 		
+		// 创建哈希分片
+		// mongos> sh.shardCollection("testdb.testhashed", {"_id" : "hashed"})
+		
+		// 创建标签分片，给现有的分片添加标签
+		// mongos> sh.addShardTag("shard0000", "US")
+		// mongos> sh.addShardTag("shard0001", "EU")
+		// 在片键中添加一个额外的键，用于表示数据所属的区域。片键的标签部分不需要是第一个元素，但通常最好将它用作第一个元素；通过这种方式，分片块将首先按照标签进行划分。
+		// mongos> sh.shardCollection("testdb.testtagsharding", {"region" : 1, "testkey" : 1})
+		// 添加规则，设置标签范围。可以使用特有的MinKey和MaxKey操作符，它们分别代表分片键范围中的最小值和最大值。
+		// mongos> sh.addTagRange("testdb.testtagsharding", {"region":MinKey}, {"region":"US"}, "EU")
+		// mongos> sh.addTagRange("testdb.testtagsharding", {"region":"US"}, {"region":MaxKey}, "US")
+		
 		// 往集合中添加100000条数据
 		// mongos> for (var i = 0; i < 100000; i++) { db.testcollection.insert({"testkey":i, "testtext":"abcdefg"}); }
 		// WriteResult({ "nInserted" : 1 })
