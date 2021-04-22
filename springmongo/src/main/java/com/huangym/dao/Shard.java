@@ -3,6 +3,8 @@ package com.huangym.dao;
 public class Shard {
 
 	public void shard() {
+		// http://www.2cto.com/database/201307/230419.html
+		
 		// 假设有三台物理服务器，每台物理服务器上启动三个mongoDB服务实例，这三个实例分别属于shard1、shard2、shard3三个复制集。三个复制集将作为整个mongo集群的分片服务。
 		// E:\Tools\mongodb-win32-x86_64-3.0.6\bin>mongod.exe --shardsvr --port 10001 --dbpath /data/s1 --replSet shard1
 		// E:\Tools\mongodb-win32-x86_64-3.0.6\bin>mongod.exe --shardsvr --port 10002 --dbpath /data/s2 --replSet shard2
