@@ -1,5 +1,10 @@
 package com.huangym.dao;
 
+/**
+ * mongos进程通常跑在应用程勋服务器（appserver）上。配置服务器，鉴于其重要性，是非常轻量级的并且基本上可以在任何机器上运行。
+ * @author huangym3
+ * @time 2017年1月23日 上午9:49:18
+ */
 public class Shard {
 
 	public void shard() {
